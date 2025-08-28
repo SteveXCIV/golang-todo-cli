@@ -14,6 +14,37 @@ const (
 	High
 )
 
+var priorityToString = map[Priority]string{
+	Low:    "LOW",
+	Medium: "MEDIUM",
+	High:   "HIGH",
+}
+
+var stringToPriority = map[string]Priority{
+	"LOW":    Low,
+	"MEDIUM": Medium,
+	"HIGH":   High,
+}
+
+func (p *Priority) String() string {
+	return priorityToString[*p]
+}
+
+func (p Priority) MarshalJSON() ([]byte, error) {
+	if str, ok := priorityToString[p]; ok {
+		return json.Marshal(str)
+	}
+	return nil, fmt.Errorf("unknown priority: %d", p)
+}
+
+func (p *Priority) UnmarshalJSON(b []byte) error {
+	if val, ok := stringToPriority[string(b)]; ok {
+		*p = val
+		return nil
+	}
+	return fmt.Errorf("unknown priority: %s", string(b))
+}
+
 type Status int
 
 const (
@@ -23,7 +54,6 @@ const (
 
 type DueDate time.Time
 
-// JSON Marshal/Unmarshal
 func (d DueDate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Time(d).Format("2006-01-02"))
 }
@@ -53,11 +83,13 @@ func main() {
 		DueDate:  DueDate(time.Now().AddDate(0, 0, 7)),
 		Category: "Health",
 	}
-	jsonDueDate, _ := json.Marshal(testTask.DueDate)
-	fmt.Println("Marshaled DueDate:", string(jsonDueDate))
-	var parsedDueDate DueDate
-	_ = json.Unmarshal(jsonDueDate, &parsedDueDate)
-	fmt.Println("Parsed DueDate:", time.Time(parsedDueDate).Format("2006-01-02"))
+
+	jsonPriority, _ := json.Marshal(testTask.Priority)
+	fmt.Println("Marshaled Priority:", string(jsonPriority))
+
+	var parsedPriority Priority
+	_ = json.Unmarshal(jsonPriority, &parsedPriority)
+	fmt.Println("Parsed Priority:", parsedPriority)
 
 	jsonData, _ := json.Marshal(testTask)
 	fmt.Println(string(jsonData))
