@@ -52,6 +52,38 @@ const (
 	Completed
 )
 
+var statusToString = map[Status]string{
+	Pending:   "pending",
+	Completed: "completed",
+}
+
+var stringToStatus = map[string]Status{
+	"pending":   Pending,
+	"completed": Completed,
+}
+
+func (s *Status) String() string {
+	if str, ok := statusToString[*s]; ok {
+		return str
+	}
+	return "UNKNOWN"
+}
+
+func (s Status) MarshalJSON() ([]byte, error) {
+	if str, ok := statusToString[s]; ok {
+		return json.Marshal(str)
+	}
+	return nil, fmt.Errorf("unknown status: %d", s)
+}
+
+func (s *Status) UnmarshalJSON(b []byte) error {
+	if val, ok := stringToStatus[string(b)]; ok {
+		*s = val
+		return nil
+	}
+	return fmt.Errorf("unknown status: %s", string(b))
+}
+
 type DueDate time.Time
 
 func (d DueDate) MarshalJSON() ([]byte, error) {
@@ -73,6 +105,7 @@ type task struct {
 	Priority Priority `json:"priority"`
 	DueDate  DueDate  `json:"dueDate"`
 	Category string   `json:"category"`
+	Status   Status   `json:"status"`
 }
 
 func main() {
@@ -82,14 +115,15 @@ func main() {
 		Priority: High,
 		DueDate:  DueDate(time.Now().AddDate(0, 0, 7)),
 		Category: "Health",
+		Status:   Pending,
 	}
 
-	jsonPriority, _ := json.Marshal(testTask.Priority)
-	fmt.Println("Marshaled Priority:", string(jsonPriority))
+	jsonStatus, _ := json.Marshal(Completed)
+	fmt.Println("Marshaled Status:", string(jsonStatus))
 
-	var parsedPriority Priority
-	_ = json.Unmarshal(jsonPriority, &parsedPriority)
-	fmt.Println("Parsed Priority:", parsedPriority)
+	var parsedStatus Status
+	_ = json.Unmarshal(jsonStatus, &parsedStatus)
+	fmt.Println("Parsed Status:", parsedStatus)
 
 	jsonData, _ := json.Marshal(testTask)
 	fmt.Println(string(jsonData))
