@@ -94,3 +94,29 @@ func TestDueDateJSONRoundTrip(t *testing.T) {
 		t.Errorf("due date %v != unmarshaled %v", date, unmarshaled)
 	}
 }
+
+func TestTaskJSONRoundTrip(t *testing.T) {
+	task := Task{
+		Id:       1,
+		Title:    "Make vet appointment",
+		Priority: High,
+		DueDate:  DueDate(time.Date(2025, 10, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "pet stuff",
+		Status:   Pending,
+	}
+
+	marshaled, err := json.Marshal(task)
+	if err != nil {
+		t.Errorf("failed to marshal task: %v", err)
+	}
+
+	var unmarshaled Task
+	err = json.Unmarshal(marshaled, &unmarshaled)
+	if err != nil {
+		t.Errorf("failed to unmarshal task: %v", err)
+	}
+
+	if task != unmarshaled {
+		t.Errorf("task %v != unmarshaled %v", task, unmarshaled)
+	}
+}
