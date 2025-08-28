@@ -99,7 +99,11 @@ func (d DueDate) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DueDate) UnmarshalJSON(b []byte) error {
-	if timestamp, err := time.Parse(`"2006-01-02"`, string(b)); err != nil {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return fmt.Errorf("dueDate should be a string, got %s", string(b))
+	}
+	if timestamp, err := time.Parse("2006-01-02", v); err != nil {
 		return err
 	} else {
 		*d = DueDate(timestamp)

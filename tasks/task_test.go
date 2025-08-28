@@ -3,6 +3,7 @@ package tasks
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestPriorityJSONRoundTrip(t *testing.T) {
@@ -67,5 +68,29 @@ func TestStatusJSONRoundTrip(t *testing.T) {
 		if test.status != unmarshaled {
 			t.Errorf("status %v != unmarshaled %v", test.status, unmarshaled)
 		}
+	}
+}
+
+func TestDueDateJSONRoundTrip(t *testing.T) {
+	date := DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC))
+	expectedJSON := `"2024-04-10"`
+
+	marshaled, err := json.Marshal(date)
+	if err != nil {
+		t.Errorf("failed to marshal due date: %v", err)
+	}
+
+	if string(marshaled) != expectedJSON {
+		t.Errorf("due date: expected %s, got %s", expectedJSON, string(marshaled))
+	}
+
+	var unmarshaled DueDate
+	err = json.Unmarshal(marshaled, &unmarshaled)
+	if err != nil {
+		t.Errorf("failed to unmarshal due date: %v", err)
+	}
+
+	if date != unmarshaled {
+		t.Errorf("due date %v != unmarshaled %v", date, unmarshaled)
 	}
 }
