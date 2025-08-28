@@ -5,6 +5,39 @@ import (
 	"testing"
 )
 
+func TestPriorityJSONRoundTrip(t *testing.T) {
+	var tests = []struct {
+		priority     Priority
+		expectedJSON string
+	}{
+		{Low, `"LOW"`},
+		{Medium, `"MEDIUM"`},
+		{High, `"HIGH"`},
+	}
+
+	for _, test := range tests {
+		marshaled, err := json.Marshal(test.priority)
+		if err != nil {
+			t.Errorf("failed to marshal priority %v: %v", test.priority, err)
+		}
+
+		if string(marshaled) != test.expectedJSON {
+			t.Errorf("priority %v: expected %s, got %s", test.priority, test.expectedJSON, string(marshaled))
+		}
+
+		var unmarshaled Priority
+		err = json.Unmarshal(marshaled, &unmarshaled)
+
+		if err != nil {
+			t.Errorf("failed to unmarshal priority %v: %v", test.priority, err)
+		}
+
+		if test.priority != unmarshaled {
+			t.Errorf("priority %v != unmarshaled %v", test.priority, unmarshaled)
+		}
+	}
+}
+
 func TestStatusJSONRoundTrip(t *testing.T) {
 	var tests = []struct {
 		status       Status

@@ -38,11 +38,15 @@ func (p Priority) MarshalJSON() ([]byte, error) {
 }
 
 func (p *Priority) UnmarshalJSON(b []byte) error {
-	if val, ok := stringToPriority[string(b)]; ok {
+	var k string
+	if err := json.Unmarshal(b, &k); err != nil {
+		return fmt.Errorf("priority should be a string, got %s", string(b))
+	}
+	if val, ok := stringToPriority[k]; ok {
 		*p = val
 		return nil
 	}
-	return fmt.Errorf("unknown priority: %s", string(b))
+	return fmt.Errorf("unknown priority: %s", k)
 }
 
 type Status int
