@@ -99,7 +99,7 @@ func (d *DueDate) UnmarshalJSON(b []byte) error {
 	}
 }
 
-type task struct {
+type Task struct {
 	Id       int      `json:"id"`
 	Title    string   `json:"title"`
 	Priority Priority `json:"priority"`
@@ -109,7 +109,7 @@ type task struct {
 }
 
 func main() {
-	var testTask = task{
+	var testTask = Task{
 		Id:       1,
 		Title:    "Schedule dentist appointment",
 		Priority: High,
