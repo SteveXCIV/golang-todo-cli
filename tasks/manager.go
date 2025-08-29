@@ -1,6 +1,16 @@
 package tasks
 
-type ManagerConfig struct{}
+import (
+	"encoding/json"
+	"os"
+	"strings"
+	"time"
+)
+
+type ManagerConfig struct {
+	filename string
+	now      func() time.Time
+}
 
 type AddTaskRequest struct {
 	Title    string
@@ -28,14 +38,38 @@ type DeleteTaskRequest struct {
 	Id int
 }
 
-type Manager struct{}
-
-func NewManager() Manager {
-	return NewManagerWithConfig(ManagerConfig{})
+type Manager struct {
+	filename string
+	now      func() time.Time
+	nextId   int
+	tasks    []Task
 }
 
-func NewManagerWithConfig(config ManagerConfig) Manager {
-	return Manager{}
+func NewManager() (Manager, error) {
+	return NewManagerWithConfig(ManagerConfig{
+		filename: "tasks.json",
+		now:      time.Now,
+	})
+}
+
+func NewManagerWithConfig(config ManagerConfig) (Manager, error) {
+	m := Manager{
+		filename: config.filename,
+		now:      config.now,
+		tasks:    []Task{},
+	}
+	err := m.loadFromFile()
+	if err != nil {
+		return Manager{}, err
+	}
+	nextId := 1
+	for _, task := range m.tasks {
+		if task.Id >= nextId {
+			nextId = task.Id + 1
+		}
+	}
+	m.nextId = nextId
+	return m, nil
 }
 
 func (m *Manager) AddTask(r *AddTaskRequest) error {
@@ -56,4 +90,26 @@ func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
 
 func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
 	panic("not implemented")
+}
+
+func (m *Manager) loadFromFile() error {
+	if strings.TrimSpace(m.filename) == "" {
+		return nil
+	}
+	file, err := os.ReadFile(m.filename)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(file, &m.tasks)
+}
+
+func (m *Manager) saveToFile() error {
+	if strings.TrimSpace(m.filename) == "" {
+		return nil
+	}
+	file, err := json.Marshal(m.tasks)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(m.filename, file, 0644)
 }
