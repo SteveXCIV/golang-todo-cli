@@ -153,7 +153,13 @@ func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
 }
 
 func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
-	panic("not implemented")
+	for i := range m.tasks {
+		if m.tasks[i].Id == r.Id {
+			m.tasks = append(m.tasks[:i], m.tasks[i+1:]...)
+			return nil
+		}
+	}
+	return fmt.Errorf("task %d not found", r.Id)
 }
 
 func (m *Manager) loadFromFile() error {
