@@ -87,7 +87,27 @@ func (m *Manager) AddTask(r *AddTaskRequest) error {
 }
 
 func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
-	panic("not implemented")
+	tasks := make([]Task, len(m.tasks))
+	statusFilter := func(s Status) bool { return true }
+	priorityFilter := func(p Priority) bool { return true }
+	categoryFilter := func(c string) bool { return true }
+	overdueFilter := func(d DueDate) bool { return true }
+	for _, task := range m.tasks {
+		if !statusFilter(task.Status) {
+			continue
+		}
+		if !priorityFilter(task.Priority) {
+			continue
+		}
+		if !categoryFilter(task.Category) {
+			continue
+		}
+		if !overdueFilter(task.DueDate) {
+			continue
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
 }
 
 func (m *Manager) SearchTasks(r *SearchTasksRequest) ([]Task, error) {
