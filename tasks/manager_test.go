@@ -124,8 +124,9 @@ func TestListTasksWithFilters(t *testing.T) {
 	}
 
 	// filter by status
+	status := Completed
 	tasksByStatus, err := m.ListTasks(&ListTasksRequest{
-		Status: Completed,
+		Status: &status,
 	})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -135,7 +136,8 @@ func TestListTasksWithFilters(t *testing.T) {
 	}
 
 	// filter by priority
-	tasksByPriority, err := m.ListTasks(&ListTasksRequest{Priority: High})
+	priority := High
+	tasksByPriority, err := m.ListTasks(&ListTasksRequest{Priority: &priority})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -144,7 +146,8 @@ func TestListTasksWithFilters(t *testing.T) {
 	}
 
 	// filter by category
-	tasksByCategory, err := m.ListTasks(&ListTasksRequest{Category: "Health"})
+	category := "Health"
+	tasksByCategory, err := m.ListTasks(&ListTasksRequest{Category: &category})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -153,7 +156,8 @@ func TestListTasksWithFilters(t *testing.T) {
 	}
 
 	// filter by category (case insensitive)
-	tasksByCategory, err = m.ListTasks(&ListTasksRequest{Category: "gRoCeRiEs"})
+	category = "gRoCeRiEs"
+	tasksByCategory, err = m.ListTasks(&ListTasksRequest{Category: &category})
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}

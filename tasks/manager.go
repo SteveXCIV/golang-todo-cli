@@ -20,9 +20,9 @@ type AddTaskRequest struct {
 }
 
 type ListTasksRequest struct {
-	Status      Status
-	Priority    Priority
-	Category    string
+	Status      *Status
+	Priority    *Priority
+	Category    *string
 	OverdueOnly bool
 }
 
