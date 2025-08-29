@@ -33,6 +33,9 @@ func TestAddTask(t *testing.T) {
 	if task != expectedTask {
 		t.Fatalf("expected %v, got %v", expectedTask, task)
 	}
+	if m.nextId != 2 {
+		t.Fatalf("expected nextId to be 2, got %d", m.nextId)
+	}
 }
 
 func TestListTasksNoFilter(t *testing.T) {
