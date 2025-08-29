@@ -8,8 +8,8 @@ import (
 )
 
 type ManagerConfig struct {
-	filename string
-	now      func() time.Time
+	Filename string
+	Now      func() time.Time
 }
 
 type AddTaskRequest struct {
@@ -47,15 +47,15 @@ type Manager struct {
 
 func NewManager() (Manager, error) {
 	return NewManagerWithConfig(ManagerConfig{
-		filename: "tasks.json",
-		now:      time.Now,
+		Filename: "tasks.json",
+		Now:      time.Now,
 	})
 }
 
 func NewManagerWithConfig(config ManagerConfig) (Manager, error) {
 	m := Manager{
-		filename: config.filename,
-		now:      config.now,
+		filename: config.Filename,
+		now:      config.Now,
 		tasks:    []Task{},
 	}
 	err := m.loadFromFile()
