@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"time"
 )
@@ -155,7 +156,7 @@ func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
 func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
 	for i := range m.tasks {
 		if m.tasks[i].Id == r.Id {
-			m.tasks = append(m.tasks[:i], m.tasks[i+1:]...)
+			m.tasks = slices.Delete(m.tasks, i, i+1)
 			return nil
 		}
 	}
