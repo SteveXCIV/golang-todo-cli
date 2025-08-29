@@ -89,9 +89,21 @@ func (m *Manager) AddTask(r *AddTaskRequest) error {
 func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
 	tasks := make([]Task, len(m.tasks))
 	statusFilter := func(s Status) bool { return true }
+	if r.Status != nil {
+		statusFilter = func(s Status) bool { return s == *r.Status }
+	}
 	priorityFilter := func(p Priority) bool { return true }
+	if r.Priority != nil {
+		priorityFilter = func(p Priority) bool { return p == *r.Priority }
+	}
 	categoryFilter := func(c string) bool { return true }
+	if r.Category != nil {
+		categoryFilter = func(c string) bool { return c == *r.Category }
+	}
 	overdueFilter := func(d DueDate) bool { return true }
+	if r.OverdueOnly {
+		overdueFilter = func(d DueDate) bool { return time.Time(d).Before(m.now()) }
+	}
 	for _, task := range m.tasks {
 		if !statusFilter(task.Status) {
 			continue
