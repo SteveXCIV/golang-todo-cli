@@ -85,7 +85,7 @@ func (m *Manager) AddTask(r *AddTaskRequest) error {
 	}
 	m.tasks = append(m.tasks, newTask)
 	m.nextId++
-	return nil
+	return m.saveToFile()
 }
 
 func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
@@ -147,7 +147,7 @@ func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
 				return fmt.Errorf("task %d is already completed", r.Id)
 			}
 			m.tasks[i].Status = Completed
-			return nil
+			return m.saveToFile()
 		}
 	}
 	return fmt.Errorf("task %d not found", r.Id)
@@ -157,7 +157,7 @@ func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
 	for i := range m.tasks {
 		if m.tasks[i].Id == r.Id {
 			m.tasks = slices.Delete(m.tasks, i, i+1)
-			return nil
+			return m.saveToFile()
 		}
 	}
 	return fmt.Errorf("task %d not found", r.Id)
