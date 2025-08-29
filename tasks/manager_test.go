@@ -8,7 +8,8 @@ import (
 )
 
 func TestAddTask(t *testing.T) {
-	m := Manager{}
+	// TODO: figure out how to make testing more convenient than this
+	m := Manager{nextId: 1}
 
 	err := m.AddTask(&AddTaskRequest{
 		Title:    "Test Task",

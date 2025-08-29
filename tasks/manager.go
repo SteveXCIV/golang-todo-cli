@@ -73,7 +73,17 @@ func NewManagerWithConfig(config ManagerConfig) (Manager, error) {
 }
 
 func (m *Manager) AddTask(r *AddTaskRequest) error {
-	panic("not implemented")
+	newTask := Task{
+		Id:       m.nextId,
+		Title:    r.Title,
+		Priority: r.Priority,
+		DueDate:  r.DueDate,
+		Category: r.Category,
+		Status:   Pending,
+	}
+	m.tasks = append(m.tasks, newTask)
+	m.nextId++
+	return nil
 }
 
 func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
