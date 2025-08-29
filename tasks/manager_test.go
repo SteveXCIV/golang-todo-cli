@@ -266,3 +266,46 @@ func TestCompleteTask(t *testing.T) {
 		t.Fatalf("expected 'already completed' error, got %v", err)
 	}
 }
+
+func TestDeleteTask(t *testing.T) {
+	task1 := Task{
+		Id:       1,
+		Title:    "Call dentist",
+		Priority: Medium,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Health",
+		Status:   Pending,
+	}
+	task2 := Task{
+		Id:       2,
+		Title:    "Buy milk",
+		Priority: Low,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Groceries",
+		Status:   Completed,
+	}
+	m := Manager{
+		tasks: []Task{
+			task1,
+			task2,
+		},
+	}
+
+	// delete task
+	err := m.DeleteTask(&DeleteTaskRequest{Id: 1})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if slices.Contains(m.tasks, task1) {
+		t.Fatalf("expected task 1 to be deleted, but it still exists")
+	}
+
+	// delete unknown task
+	err = m.DeleteTask(&DeleteTaskRequest{Id: 999})
+	if err == nil {
+		t.Fatalf("expected error, got none")
+	}
+	if !strings.Contains(err.Error(), "not found") {
+		t.Fatalf("expected 'not found' error, got %v", err)
+	}
+}
