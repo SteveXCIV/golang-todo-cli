@@ -65,7 +65,7 @@ func TestListTasksNoFilter(t *testing.T) {
 		t.Fatalf("expected no error, got %v", err)
 	}
 	if len(tasks) != 2 {
-		t.Fatalf("expected 2 tasks, got %d", len(tasks))
+		t.Fatalf("expected 2 tasks, got %d: %v", len(tasks), tasks)
 	}
 	expectedTasks := []Task{
 		{

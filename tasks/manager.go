@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -87,7 +88,7 @@ func (m *Manager) AddTask(r *AddTaskRequest) error {
 }
 
 func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
-	tasks := make([]Task, len(m.tasks))
+	tasks := make([]Task, 0)
 	statusFilter := func(s Status) bool { return true }
 	if r.Status != nil {
 		statusFilter = func(s Status) bool { return s == *r.Status }
@@ -98,11 +99,16 @@ func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
 	}
 	categoryFilter := func(c string) bool { return true }
 	if r.Category != nil {
-		categoryFilter = func(c string) bool { return c == *r.Category }
+		categoryFilter = func(c string) bool { return strings.EqualFold(c, *r.Category) }
 	}
-	overdueFilter := func(d DueDate) bool { return true }
+	overdueFilter := func(t *Task) bool { return true }
 	if r.OverdueOnly {
-		overdueFilter = func(d DueDate) bool { return time.Time(d).Before(m.now()) }
+		overdueFilter = func(t *Task) bool {
+			if t.Status == Completed {
+				return false
+			}
+			return time.Time(t.DueDate).Before(m.now())
+		}
 	}
 	for _, task := range m.tasks {
 		if !statusFilter(task.Status) {
@@ -114,7 +120,7 @@ func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
 		if !categoryFilter(task.Category) {
 			continue
 		}
-		if !overdueFilter(task.DueDate) {
+		if !overdueFilter(&task) {
 			continue
 		}
 		tasks = append(tasks, task)
@@ -123,11 +129,27 @@ func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
 }
 
 func (m *Manager) SearchTasks(r *SearchTasksRequest) ([]Task, error) {
-	panic("not implemented")
+	tasks := make([]Task, 0)
+	query := strings.ToLower(r.Query)
+	for _, task := range m.tasks {
+		if strings.Contains(strings.ToLower(task.Title), query) {
+			tasks = append(tasks, task)
+		}
+	}
+	return tasks, nil
 }
 
 func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
-	panic("not implemented")
+	for i := range m.tasks {
+		if m.tasks[i].Id == r.Id {
+			if m.tasks[i].Status == Completed {
+				return fmt.Errorf("task %d is already completed", r.Id)
+			}
+			m.tasks[i].Status = Completed
+			return nil
+		}
+	}
+	return fmt.Errorf("task %d not found", r.Id)
 }
 
 func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
