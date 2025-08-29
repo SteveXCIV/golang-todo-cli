@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"slices"
+	"strings"
 	"testing"
 	"time"
 )
@@ -217,5 +218,48 @@ func TestSearchTasksTableDriven(t *testing.T) {
 				t.Fatalf("expected %v, got %v", tt.expected, actual)
 			}
 		})
+	}
+}
+
+func TestCompleteTask(t *testing.T) {
+	task1 := Task{
+		Id:       1,
+		Title:    "Call dentist",
+		Priority: Medium,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Health",
+		Status:   Pending,
+	}
+	task2 := Task{
+		Id:       2,
+		Title:    "Buy milk",
+		Priority: Low,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Groceries",
+		Status:   Completed,
+	}
+	m := Manager{
+		tasks: []Task{
+			task1,
+			task2,
+		},
+	}
+
+	// complete task
+	err := m.CompleteTask(&CompleteTaskRequest{Id: 1})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if m.tasks[0].Status != Completed {
+		t.Fatalf("expected task 1 to be completed, got %v", m.tasks[0].Status)
+	}
+
+	// complete already completed task
+	err = m.CompleteTask(&CompleteTaskRequest{Id: 2})
+	if err == nil {
+		t.Fatalf("expected error, got none")
+	}
+	if !strings.Contains(err.Error(), "already completed") {
+		t.Fatalf("expected 'already completed' error, got %v", err)
 	}
 }
