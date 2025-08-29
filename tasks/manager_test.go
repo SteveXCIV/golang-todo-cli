@@ -165,3 +165,57 @@ func TestListTasksWithFilters(t *testing.T) {
 		t.Fatalf("expected %v, got %v", task1, tasksOverdue)
 	}
 }
+
+func TestSearchTasksTableDriven(t *testing.T) {
+	task1 := Task{
+		Id:       1,
+		Title:    "Call dentist",
+		Priority: Medium,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Health",
+		Status:   Pending,
+	}
+	task2 := Task{
+		Id:       2,
+		Title:    "Buy milk",
+		Priority: Low,
+		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
+		Category: "Groceries",
+		Status:   Completed,
+	}
+	task3 := Task{
+		Id:       3,
+		Title:    "File taxes",
+		Priority: High,
+		DueDate:  DueDate(time.Date(2024, 4, 12, 0, 0, 0, 0, time.UTC)),
+		Category: "Finance",
+		Status:   Pending,
+	}
+	m := Manager{
+		tasks: []Task{
+			task1,
+			task2,
+			task3,
+		},
+	}
+	tests := []struct {
+		query    string
+		expected []Task
+	}{
+		{"dentist", []Task{task1}},
+		{"tAxEs", []Task{task3}},
+		{"t", []Task{task1, task3}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.query, func(t *testing.T) {
+			actual, err := m.SearchTasks(&SearchTasksRequest{Query: tt.query})
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+			if !slices.Equal(actual, tt.expected) {
+				t.Fatalf("expected %v, got %v", tt.expected, actual)
+			}
+		})
+	}
+}
