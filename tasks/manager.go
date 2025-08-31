@@ -9,7 +9,15 @@ import (
 	"time"
 )
 
-type Manager struct {
+type Manager interface {
+	AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error
+	ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error)
+	SearchTasks(query string) ([]Task, error)
+	CompleteTask(id int) error
+	DeleteTask(id int) error
+}
+
+type manager struct {
 	filename string
 	now      func() time.Time
 	nextId   int
@@ -32,14 +40,14 @@ func newManagerInternal(
 	if now == nil {
 		now = time.Now
 	}
-	m := Manager{
+	m := &manager{
 		filename: filename,
 		now:      now,
 		tasks:    tasks,
 	}
 	err := m.loadFromFile()
 	if err != nil {
-		return Manager{}, err
+		return nil, err
 	}
 	nextId := 1
 	for _, task := range m.tasks {
@@ -51,7 +59,7 @@ func newManagerInternal(
 	return m, nil
 }
 
-func (m *Manager) AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error {
+func (m *manager) AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error {
 	newTask := Task{
 		Id:       m.nextId,
 		Title:    title,
@@ -65,7 +73,7 @@ func (m *Manager) AddTask(title string, priority Priority, getDueDate func(time.
 	return m.saveToFile()
 }
 
-func (m *Manager) ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error) {
+func (m *manager) ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error) {
 	tasks := make([]Task, 0)
 	statusFilter := func(s Status) bool { return true }
 	if status != nil {
@@ -106,7 +114,7 @@ func (m *Manager) ListTasks(status *Status, priority *Priority, category string,
 	return tasks, nil
 }
 
-func (m *Manager) SearchTasks(query string) ([]Task, error) {
+func (m *manager) SearchTasks(query string) ([]Task, error) {
 	tasks := make([]Task, 0)
 	queryLower := strings.ToLower(query)
 	for _, task := range m.tasks {
@@ -117,7 +125,7 @@ func (m *Manager) SearchTasks(query string) ([]Task, error) {
 	return tasks, nil
 }
 
-func (m *Manager) CompleteTask(id int) error {
+func (m *manager) CompleteTask(id int) error {
 	for i := range m.tasks {
 		if m.tasks[i].Id == id {
 			if m.tasks[i].Status == Completed {
@@ -130,7 +138,7 @@ func (m *Manager) CompleteTask(id int) error {
 	return fmt.Errorf("task %d not found", id)
 }
 
-func (m *Manager) DeleteTask(id int) error {
+func (m *manager) DeleteTask(id int) error {
 	for i := range m.tasks {
 		if m.tasks[i].Id == id {
 			m.tasks = slices.Delete(m.tasks, i, i+1)
@@ -140,7 +148,7 @@ func (m *Manager) DeleteTask(id int) error {
 	return fmt.Errorf("task %d not found", id)
 }
 
-func (m *Manager) loadFromFile() error {
+func (m *manager) loadFromFile() error {
 	if strings.TrimSpace(m.filename) == "" {
 		return nil
 	}
@@ -151,7 +159,7 @@ func (m *Manager) loadFromFile() error {
 	return json.Unmarshal(file, &m.tasks)
 }
 
-func (m *Manager) saveToFile() error {
+func (m *manager) saveToFile() error {
 	if strings.TrimSpace(m.filename) == "" {
 		return nil
 	}

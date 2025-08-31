@@ -22,10 +22,15 @@ func TestAddTask(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if len(m.tasks) != 1 {
-		t.Fatalf("expected 1 task, got %d", len(m.tasks))
+
+	tasks, err := m.ListTasks(nil, nil, "", false)
+	if err != nil {
+		t.Fatalf("expected no error when listing tasks, got %v", err)
 	}
-	task := m.tasks[0]
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 task, got %d", len(tasks))
+	}
+	task := tasks[0]
 	expectedTask := Task{
 		Id:       1,
 		Title:    "Test Task",
@@ -35,9 +40,6 @@ func TestAddTask(t *testing.T) {
 	}
 	if task != expectedTask {
 		t.Fatalf("expected %v, got %v", expectedTask, task)
-	}
-	if m.nextId != 2 {
-		t.Fatalf("expected nextId to be 2, got %d", m.nextId)
 	}
 }
 
@@ -264,8 +266,22 @@ func TestCompleteTask(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if m.tasks[0].Status != Completed {
-		t.Fatalf("expected task 1 to be completed, got %v", m.tasks[0].Status)
+	tasks, err := m.ListTasks(nil, nil, "", false)
+	if err != nil {
+		t.Fatalf("expected no error when listing tasks, got %v", err)
+	}
+	var task1Updated *Task
+	for _, task := range tasks {
+		if task.Id == 1 {
+			task1Updated = &task
+			break
+		}
+	}
+	if task1Updated == nil {
+		t.Fatalf("expected to find task 1 in the list")
+	}
+	if task1Updated.Status != Completed {
+		t.Fatalf("expected task 1 to be completed, got %v", task1Updated.Status)
 	}
 
 	// complete already completed task
@@ -309,8 +325,17 @@ func TestDeleteTask(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if slices.Contains(m.tasks, task1) {
-		t.Fatalf("expected task 1 to be deleted, but it still exists")
+	tasks, err := m.ListTasks(nil, nil, "", false)
+	if err != nil {
+		t.Fatalf("expected no error when listing tasks, got %v", err)
+	}
+	for _, task := range tasks {
+		if task.Id == 1 {
+			t.Fatalf("expected task 1 to be deleted, but it still exists")
+		}
+	}
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 remaining task after deletion, got %d", len(tasks))
 	}
 
 	// delete unknown task
