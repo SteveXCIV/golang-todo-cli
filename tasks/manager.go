@@ -9,13 +9,6 @@ import (
 	"time"
 )
 
-type AddTaskRequest struct {
-	Title    string
-	Priority Priority
-	DueDate  DueDate
-	Category string
-}
-
 type ListTasksRequest struct {
 	Status      *Status
 	Priority    *Priority
