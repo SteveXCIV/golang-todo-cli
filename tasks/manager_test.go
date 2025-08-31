@@ -63,7 +63,7 @@ func TestListTasksNoFilter(t *testing.T) {
 		},
 	)
 
-	tasks, err := m.ListTasks(&ListTasksRequest{})
+	tasks, err := m.ListTasks(nil, nil, "", false)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -129,9 +129,7 @@ func TestListTasksWithFilters(t *testing.T) {
 
 	// filter by status
 	status := Completed
-	tasksByStatus, err := m.ListTasks(&ListTasksRequest{
-		Status: &status,
-	})
+	tasksByStatus, err := m.ListTasks(&status, nil, "", false)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -141,7 +139,7 @@ func TestListTasksWithFilters(t *testing.T) {
 
 	// filter by priority
 	priority := High
-	tasksByPriority, err := m.ListTasks(&ListTasksRequest{Priority: &priority})
+	tasksByPriority, err := m.ListTasks(nil, &priority, "", false)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -151,7 +149,7 @@ func TestListTasksWithFilters(t *testing.T) {
 
 	// filter by category
 	category := "Health"
-	tasksByCategory, err := m.ListTasks(&ListTasksRequest{Category: &category})
+	tasksByCategory, err := m.ListTasks(nil, nil, category, false)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -161,7 +159,7 @@ func TestListTasksWithFilters(t *testing.T) {
 
 	// filter by category (case insensitive)
 	category = "gRoCeRiEs"
-	tasksByCategory, err = m.ListTasks(&ListTasksRequest{Category: &category})
+	tasksByCategory, err = m.ListTasks(nil, nil, category, false)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -170,7 +168,7 @@ func TestListTasksWithFilters(t *testing.T) {
 	}
 
 	// filter by overdue
-	tasksOverdue, err := m.ListTasks(&ListTasksRequest{OverdueOnly: true})
+	tasksOverdue, err := m.ListTasks(nil, nil, "", true)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -224,7 +222,7 @@ func TestSearchTasksTableDriven(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.query, func(t *testing.T) {
-			actual, err := m.SearchTasks(&SearchTasksRequest{Query: tt.query})
+			actual, err := m.SearchTasks(tt.query)
 			if err != nil {
 				t.Fatalf("expected no error, got %v", err)
 			}
@@ -262,7 +260,7 @@ func TestCompleteTask(t *testing.T) {
 	)
 
 	// complete task
-	err := m.CompleteTask(&CompleteTaskRequest{Id: 1})
+	err := m.CompleteTask(1)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -271,7 +269,7 @@ func TestCompleteTask(t *testing.T) {
 	}
 
 	// complete already completed task
-	err = m.CompleteTask(&CompleteTaskRequest{Id: 2})
+	err = m.CompleteTask(2)
 	if err == nil {
 		t.Fatalf("expected error, got none")
 	}
@@ -307,7 +305,7 @@ func TestDeleteTask(t *testing.T) {
 	)
 
 	// delete task
-	err := m.DeleteTask(&DeleteTaskRequest{Id: 1})
+	err := m.DeleteTask(1)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -316,7 +314,7 @@ func TestDeleteTask(t *testing.T) {
 	}
 
 	// delete unknown task
-	err = m.DeleteTask(&DeleteTaskRequest{Id: 999})
+	err = m.DeleteTask(999)
 	if err == nil {
 		t.Fatalf("expected error, got none")
 	}

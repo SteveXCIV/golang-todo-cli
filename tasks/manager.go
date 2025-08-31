@@ -9,25 +9,6 @@ import (
 	"time"
 )
 
-type ListTasksRequest struct {
-	Status      *Status
-	Priority    *Priority
-	Category    *string
-	OverdueOnly bool
-}
-
-type SearchTasksRequest struct {
-	Query string
-}
-
-type CompleteTaskRequest struct {
-	Id int
-}
-
-type DeleteTaskRequest struct {
-	Id int
-}
-
 type Manager struct {
 	filename string
 	now      func() time.Time
@@ -84,22 +65,22 @@ func (m *Manager) AddTask(title string, priority Priority, getDueDate func(time.
 	return m.saveToFile()
 }
 
-func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
+func (m *Manager) ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error) {
 	tasks := make([]Task, 0)
 	statusFilter := func(s Status) bool { return true }
-	if r.Status != nil {
-		statusFilter = func(s Status) bool { return s == *r.Status }
+	if status != nil {
+		statusFilter = func(s Status) bool { return s == *status }
 	}
 	priorityFilter := func(p Priority) bool { return true }
-	if r.Priority != nil {
-		priorityFilter = func(p Priority) bool { return p == *r.Priority }
+	if priority != nil {
+		priorityFilter = func(p Priority) bool { return p == *priority }
 	}
 	categoryFilter := func(c string) bool { return true }
-	if r.Category != nil {
-		categoryFilter = func(c string) bool { return strings.EqualFold(c, *r.Category) }
+	if category != "" {
+		categoryFilter = func(c string) bool { return strings.EqualFold(c, category) }
 	}
 	overdueFilter := func(t *Task) bool { return true }
-	if r.OverdueOnly {
+	if overdueOnly {
 		overdueFilter = func(t *Task) bool {
 			if t.Status == Completed {
 				return false
@@ -125,38 +106,38 @@ func (m *Manager) ListTasks(r *ListTasksRequest) ([]Task, error) {
 	return tasks, nil
 }
 
-func (m *Manager) SearchTasks(r *SearchTasksRequest) ([]Task, error) {
+func (m *Manager) SearchTasks(query string) ([]Task, error) {
 	tasks := make([]Task, 0)
-	query := strings.ToLower(r.Query)
+	queryLower := strings.ToLower(query)
 	for _, task := range m.tasks {
-		if strings.Contains(strings.ToLower(task.Title), query) {
+		if strings.Contains(strings.ToLower(task.Title), queryLower) {
 			tasks = append(tasks, task)
 		}
 	}
 	return tasks, nil
 }
 
-func (m *Manager) CompleteTask(r *CompleteTaskRequest) error {
+func (m *Manager) CompleteTask(id int) error {
 	for i := range m.tasks {
-		if m.tasks[i].Id == r.Id {
+		if m.tasks[i].Id == id {
 			if m.tasks[i].Status == Completed {
-				return fmt.Errorf("task %d is already completed", r.Id)
+				return fmt.Errorf("task %d is already completed", id)
 			}
 			m.tasks[i].Status = Completed
 			return m.saveToFile()
 		}
 	}
-	return fmt.Errorf("task %d not found", r.Id)
+	return fmt.Errorf("task %d not found", id)
 }
 
-func (m *Manager) DeleteTask(r *DeleteTaskRequest) error {
+func (m *Manager) DeleteTask(id int) error {
 	for i := range m.tasks {
-		if m.tasks[i].Id == r.Id {
+		if m.tasks[i].Id == id {
 			m.tasks = slices.Delete(m.tasks, i, i+1)
 			return m.saveToFile()
 		}
 	}
-	return fmt.Errorf("task %d not found", r.Id)
+	return fmt.Errorf("task %d not found", id)
 }
 
 func (m *Manager) loadFromFile() error {
