@@ -9,11 +9,6 @@ import (
 	"time"
 )
 
-type ManagerConfig struct {
-	Filename string
-	Now      func() time.Time
-}
-
 type AddTaskRequest struct {
 	Title    string
 	Priority Priority
@@ -48,17 +43,25 @@ type Manager struct {
 }
 
 func NewManager() (Manager, error) {
-	return NewManagerWithConfig(ManagerConfig{
-		Filename: "tasks.json",
-		Now:      time.Now,
-	})
+	return newManagerInternal(
+		"tasks.json",
+		time.Now,
+		[]Task{},
+	)
 }
 
-func NewManagerWithConfig(config ManagerConfig) (Manager, error) {
+func newManagerInternal(
+	filename string,
+	now func() time.Time,
+	tasks []Task,
+) (Manager, error) {
+	if now == nil {
+		now = time.Now
+	}
 	m := Manager{
-		filename: config.Filename,
-		now:      config.Now,
-		tasks:    []Task{},
+		filename: filename,
+		now:      now,
+		tasks:    tasks,
 	}
 	err := m.loadFromFile()
 	if err != nil {
@@ -74,13 +77,13 @@ func NewManagerWithConfig(config ManagerConfig) (Manager, error) {
 	return m, nil
 }
 
-func (m *Manager) AddTask(r *AddTaskRequest) error {
+func (m *Manager) AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error {
 	newTask := Task{
 		Id:       m.nextId,
-		Title:    r.Title,
-		Priority: r.Priority,
-		DueDate:  r.DueDate,
-		Category: r.Category,
+		Title:    title,
+		Priority: priority,
+		DueDate:  getDueDate(m.now()),
+		Category: category,
 		Status:   Pending,
 	}
 	m.tasks = append(m.tasks, newTask)

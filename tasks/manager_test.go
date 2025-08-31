@@ -8,14 +8,16 @@ import (
 )
 
 func TestAddTask(t *testing.T) {
-	// TODO: figure out how to make testing more convenient than this
-	m := Manager{nextId: 1}
+	m, _ := newManagerInternal("", time.Now, []Task{})
 
-	err := m.AddTask(&AddTaskRequest{
-		Title:    "Test Task",
-		Priority: Medium,
-		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
-	})
+	err := m.AddTask(
+		"Test Task",
+		Medium,
+		func(now time.Time) DueDate {
+			return DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC))
+		},
+		"",
+	)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -40,8 +42,10 @@ func TestAddTask(t *testing.T) {
 }
 
 func TestListTasksNoFilter(t *testing.T) {
-	m := Manager{
-		tasks: []Task{
+	m, _ := newManagerInternal(
+		"",
+		nil,
+		[]Task{
 			{
 				Id:       1,
 				Title:    "Test Task",
@@ -57,7 +61,7 @@ func TestListTasksNoFilter(t *testing.T) {
 				Status:   Pending,
 			},
 		},
-	}
+	)
 
 	tasks, err := m.ListTasks(&ListTasksRequest{})
 
@@ -114,14 +118,14 @@ func TestListTasksWithFilters(t *testing.T) {
 		Status:   Pending,
 	}
 	nowFunc := func() time.Time { return time.Date(2024, 4, 11, 0, 0, 0, 0, time.UTC) }
-	m := Manager{
-		now: nowFunc,
-		tasks: []Task{
+	m, _ := newManagerInternal(
+		"",
+		nowFunc,
+		[]Task{
 			task1,
 			task2,
 			task3,
-		},
-	}
+		})
 
 	// filter by status
 	status := Completed
@@ -200,13 +204,15 @@ func TestSearchTasksTableDriven(t *testing.T) {
 		Category: "Finance",
 		Status:   Pending,
 	}
-	m := Manager{
-		tasks: []Task{
+	m, _ := newManagerInternal(
+		"",
+		nil,
+		[]Task{
 			task1,
 			task2,
 			task3,
 		},
-	}
+	)
 	tests := []struct {
 		query    string
 		expected []Task
@@ -246,12 +252,14 @@ func TestCompleteTask(t *testing.T) {
 		Category: "Groceries",
 		Status:   Completed,
 	}
-	m := Manager{
-		tasks: []Task{
+	m, _ := newManagerInternal(
+		"",
+		nil,
+		[]Task{
 			task1,
 			task2,
 		},
-	}
+	)
 
 	// complete task
 	err := m.CompleteTask(&CompleteTaskRequest{Id: 1})
@@ -289,12 +297,14 @@ func TestDeleteTask(t *testing.T) {
 		Category: "Groceries",
 		Status:   Completed,
 	}
-	m := Manager{
-		tasks: []Task{
+	m, _ := newManagerInternal(
+		"",
+		nil,
+		[]Task{
 			task1,
 			task2,
 		},
-	}
+	)
 
 	// delete task
 	err := m.DeleteTask(&DeleteTaskRequest{Id: 1})
