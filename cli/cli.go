@@ -16,20 +16,17 @@ type Command interface {
 }
 
 func Parse(a *[]string) (Command, error) {
-	// common error messages
-	const invalidCmdMsg = "invalid command: must specify one of 'add', 'list', 'search', 'complete', or 'delete'"
-
 	// handle simple args case
 	args := *a
 	if len(args) == 0 {
-		return nil, fmt.Errorf(invalidCmdMsg)
+		return nil, fmt.Errorf("invalid command: must specify one of 'add', 'list', 'search', 'complete', or 'delete'")
 	}
 
 	switch args[0] {
 	case "add":
 		return parseAddCmd(args[1:])
 	}
-	return nil, fmt.Errorf(invalidCmdMsg)
+	return nil, fmt.Errorf("invalid command: must specify one of 'add', 'list', 'search', 'complete', or 'delete'")
 }
 
 func parseAddCmd(a []string) (*AddCommand, error) {
@@ -37,6 +34,9 @@ func parseAddCmd(a []string) (*AddCommand, error) {
 		return nil, fmt.Errorf("add error: title cannot be empty")
 	}
 	title := a[0]
+	if strings.TrimSpace(title) == "" {
+		return nil, fmt.Errorf("add error: title cannot be empty")
+	}
 
 	addFlagSet := flag.NewFlagSet("add", flag.ExitOnError)
 	addPriority := addFlagSet.String("priority", "medium", "Priority: low, medium (default), high")
@@ -66,8 +66,8 @@ func parseAddCmd(a []string) (*AddCommand, error) {
 	case *addDue == "tomorrow":
 		due = &DueTomorrow{}
 	case plusDaysRegex.MatchString(*addDue):
-		match := plusDaysRegex.FindString(*addDue)
-		days, err := strconv.Atoi(match)
+		match := plusDaysRegex.FindStringSubmatch(*addDue)
+		days, err := strconv.Atoi(match[1])
 		if err != nil {
 			return nil, fmt.Errorf("invalid date format +Xd: %v", err)
 		}

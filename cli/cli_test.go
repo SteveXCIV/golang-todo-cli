@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -53,14 +54,14 @@ func TestParseAddTableDriven(t *testing.T) {
 			errMsg: "title cannot be empty",
 		},
 		{
-			name:   "add invalid date",
-			args:   []string{"add", "Call dentist", "--due", "foobar"},
-			errMsg: "invalid date format",
-		},
-		{
 			name:   "add invalid priority",
 			args:   []string{"add", "Call dentist", "--priority", "mega-high"},
 			errMsg: "invalid priority format",
+		},
+		{
+			name:   "add invalid date",
+			args:   []string{"add", "Call dentist", "--due", "foobar"},
+			errMsg: "invalid date format",
 		},
 	}
 	tests := []struct {
@@ -148,7 +149,7 @@ func TestParseAddTableDriven(t *testing.T) {
 			if !ok {
 				t.Fatalf("expected add command, got: %v", cmd)
 			}
-			if tt.addCmd != *addCmd {
+			if !reflect.DeepEqual(&tt.addCmd, addCmd) {
 				t.Fatalf("unexpected command: wanted=%v, got=%v", tt.addCmd, addCmd)
 			}
 		})
