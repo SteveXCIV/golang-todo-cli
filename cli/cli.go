@@ -100,7 +100,55 @@ func parseAddCmd(a []string) (*AddCommand, error) {
 }
 
 func parseListCmd(a []string) (*ListCommand, error) {
-	panic("not implemented")
+	listFlagSet := flag.NewFlagSet("list", flag.ExitOnError)
+	listPriority := listFlagSet.String("priority", "", "Priority filter: low, medium, high")
+	listStatus := listFlagSet.String("status", "", "Status filter: pending, completed")
+	listCategory := listFlagSet.String("category", "", "Category filter")
+	listOverdue := listFlagSet.Bool("overdue", false, "Show only overdue tasks")
+
+	if err := listFlagSet.Parse(a); err != nil {
+		return nil, err
+	}
+
+	var priorityFilter *tasks.Priority
+	if *listPriority != "" {
+		switch strings.ToLower(*listPriority) {
+		case "low":
+			p := tasks.Low
+			priorityFilter = &p
+		case "medium":
+			p := tasks.Medium
+			priorityFilter = &p
+		case "high":
+			p := tasks.High
+			priorityFilter = &p
+		default:
+			return nil, fmt.Errorf("invalid priority format: must be 'low', 'medium', or 'high'")
+		}
+	}
+
+	var statusFilter *tasks.Status
+	if *listStatus != "" {
+		switch strings.ToLower(*listStatus) {
+		case "pending":
+			s := tasks.Pending
+			statusFilter = &s
+		case "completed":
+			s := tasks.Completed
+			statusFilter = &s
+		default:
+			return nil, fmt.Errorf("invalid status format: must be 'pending' or 'completed'")
+		}
+	}
+
+	listCmd := &ListCommand{
+		StatusFilter:   statusFilter,
+		PriorityFilter: priorityFilter,
+		CategoryFilter: *listCategory,
+		OverdueFilter:  *listOverdue,
+	}
+
+	return listCmd, nil
 }
 
 func parseSearchCmd(a []string) (*SearchCommand, error) {

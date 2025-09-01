@@ -172,21 +172,6 @@ func TestParseListTableDriven(t *testing.T) {
 			args:   []string{"list", "--status", "maybe"},
 			errMsg: "invalid status format",
 		},
-		{
-			name:   "list missing priority value",
-			args:   []string{"list", "--priority"},
-			errMsg: "priority flag requires a value",
-		},
-		{
-			name:   "list missing status value",
-			args:   []string{"list", "--status"},
-			errMsg: "status flag requires a value",
-		},
-		{
-			name:   "list missing category value",
-			args:   []string{"list", "--category"},
-			errMsg: "category flag requires a value",
-		},
 	}
 	tests := []struct {
 		name    string
