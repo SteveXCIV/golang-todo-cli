@@ -18,13 +18,81 @@ func TestAddExecuteTableDriven(t *testing.T) {
 		addCmd   AddCommand
 		wantCall addCall
 		want     string
-	}{}
+	}{
+		{
+			name: "add simple",
+			addCmd: AddCommand{
+				Title: "Call dentist",
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.Medium,
+				dueDate:  tasks.DueDate(testTime),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+		{
+			name: "add with priority",
+			addCmd: AddCommand{
+				Title:    "Call dentist",
+				Priority: tasks.High,
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.High,
+				dueDate:  tasks.DueDate(testTime),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+		{
+			name: "add due tomorrow",
+			addCmd: AddCommand{
+				Title: "Call dentist",
+				Due:   &DueTomorrow{},
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.Medium,
+				dueDate:  tasks.DueDate(testTime.Add(time.Hour * 24)),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+		{
+			name: "add due relative",
+			addCmd: AddCommand{
+				Title: "Call dentist",
+				Due:   &DueInDays{Days: 7},
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.Medium,
+				dueDate:  tasks.DueDate(testTime.Add(time.Hour * 24 * 7)),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+		{
+			name: "add due absolute",
+			addCmd: AddCommand{
+				Title: "Call dentist",
+				Due:   &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.Medium,
+				dueDate:  tasks.DueDate(time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+	}
 	var manager tasks.Manager = &m
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			m.reset()
+
 			// TODO: revisit this API to see if we can avoid double-pointer
 			got, err := tt.addCmd.Execute(&manager)
+
 			if err != nil {
 				t.Fatalf("exepcted no error, got %v", err)
 			}
