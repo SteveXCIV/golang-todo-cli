@@ -152,7 +152,14 @@ func parseListCmd(a []string) (*ListCommand, error) {
 }
 
 func parseSearchCmd(a []string) (*SearchCommand, error) {
-	panic("not implemented")
+	if len(a) == 0 {
+		return nil, fmt.Errorf("search error: query cannot be empty")
+	}
+	query := a[0]
+	if strings.TrimSpace(query) == "" {
+		return nil, fmt.Errorf("search error: query cannot be empty")
+	}
+	return &SearchCommand{Query: query}, nil
 }
 
 func parseCompleteCmd(a []string) (*CompleteCommand, error) {

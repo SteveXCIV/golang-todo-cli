@@ -281,7 +281,62 @@ func TestParseListTableDriven(t *testing.T) {
 	}
 }
 
-func TestParseSearchListTableDriven(t *testing.T) {}
+func TestParseSearchListTableDriven(t *testing.T) {
+	invalid := []struct {
+		name   string
+		args   []string
+		errMsg string
+	}{
+		{
+			name:   "search empty query",
+			args:   []string{"search", ""},
+			errMsg: "query cannot be empty",
+		},
+	}
+	tests := []struct {
+		name      string
+		args      []string
+		searchCmd SearchCommand
+	}{
+		{
+			name: "search with query",
+			args: []string{"search", "Call dentist"},
+			searchCmd: SearchCommand{
+				Query: "Call dentist",
+			},
+		},
+	}
+
+	for _, it := range invalid {
+		t.Run(it.name, func(t *testing.T) {
+			cmd, err := Parse(&it.args)
+
+			if err == nil {
+				t.Fatalf("expected err, got: %v", cmd)
+			}
+			if !strings.Contains(strings.ToLower(err.Error()), strings.ToLower(it.errMsg)) {
+				t.Fatalf("unexpected err text: wanted='%v', got=%v", it.errMsg, err)
+			}
+		})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cmd, err := Parse(&tt.args)
+
+			if err != nil {
+				t.Fatalf("unexpected err: %v", err)
+			}
+			searchCmd, ok := cmd.(*SearchCommand)
+			if !ok {
+				t.Fatalf("expected add command, got: %v", cmd)
+			}
+			if !reflect.DeepEqual(&tt.searchCmd, searchCmd) {
+				t.Fatalf("unexpected command: wanted=%v, got=%v", tt.searchCmd, searchCmd)
+			}
+		})
+	}
+}
 
 func TestParseCompleteTableDriven(t *testing.T) {}
 
