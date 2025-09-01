@@ -25,6 +25,14 @@ func Parse(a *[]string) (Command, error) {
 	switch args[0] {
 	case "add":
 		return parseAddCmd(args[1:])
+	case "list":
+		return parseListCmd(args[1:])
+	case "search":
+		return parseSearchCmd(args[1:])
+	case "complete":
+		return parseCompleteCmd(args[1:])
+	case "delete":
+		return parseDeleteCmd(args[1:])
 	}
 	return nil, fmt.Errorf("invalid command: must specify one of 'add', 'list', 'search', 'complete', or 'delete'")
 }
@@ -89,4 +97,20 @@ func parseAddCmd(a []string) (*AddCommand, error) {
 	}
 
 	return addCmd, nil
+}
+
+func parseListCmd(a []string) (*ListCommand, error) {
+	panic("not implemented")
+}
+
+func parseSearchCmd(a []string) (*SearchCommand, error) {
+	panic("not implemented")
+}
+
+func parseCompleteCmd(a []string) (*CompleteCommand, error) {
+	panic("not implemented")
+}
+
+func parseDeleteCmd(a []string) (*DeleteCommand, error) {
+	panic("not implemented")
 }

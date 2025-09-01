@@ -4,7 +4,9 @@ import (
 	"github.com/stevexciv/golang-todo-cli/tasks"
 )
 
-type DeleteCommand struct{}
+type DeleteCommand struct {
+	Id int
+}
 
 func (d *DeleteCommand) Execute(m *tasks.Manager) (string, error) {
 	panic("not implemented!")
