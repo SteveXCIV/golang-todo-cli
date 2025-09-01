@@ -350,8 +350,13 @@ func TestParseCompleteTableDriven(t *testing.T) {
 			errMsg: "ID cannot be empty",
 		},
 		{
-			name:   "complete invalid ID",
+			name:   "complete negative ID",
 			args:   []string{"complete", "-7"},
+			errMsg: "invalid ID format",
+		},
+		{
+			name:   "complete invalid ID",
+			args:   []string{"complete", "foobar"},
 			errMsg: "invalid ID format",
 		},
 	}
@@ -412,8 +417,13 @@ func TestParseDeleteTableDriven(t *testing.T) {
 			errMsg: "ID cannot be empty",
 		},
 		{
-			name:   "delete invalid ID",
+			name:   "delete negative ID",
 			args:   []string{"delete", "-7"},
+			errMsg: "invalid ID format",
+		},
+		{
+			name:   "delete invalid ID",
+			args:   []string{"delete", "foobar"},
 			errMsg: "invalid ID format",
 		},
 	}
