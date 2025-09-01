@@ -144,8 +144,8 @@ func (m *mockManager) reset() {
 	m.resetSearch()
 }
 
-func newMockManager(now time.Time) tasks.Manager {
-	return &mockManager{
+func newMockManager(now time.Time) mockManager {
+	return mockManager{
 		now: now,
 	}
 }
