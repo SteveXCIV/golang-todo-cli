@@ -163,9 +163,37 @@ func parseSearchCmd(a []string) (*SearchCommand, error) {
 }
 
 func parseCompleteCmd(a []string) (*CompleteCommand, error) {
-	panic("not implemented")
+	if len(a) == 0 {
+		return nil, fmt.Errorf("complete error: ID cannot be empty")
+	}
+	idStr := a[0]
+	if strings.TrimSpace(idStr) == "" {
+		return nil, fmt.Errorf("complete error: ID cannot be empty")
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return nil, fmt.Errorf("complete error: invalid ID format %v", err)
+	}
+	if id <= 0 {
+		return nil, fmt.Errorf("complete error: invalid ID format - ID cannot be zero or negative")
+	}
+	return &CompleteCommand{Id: id}, nil
 }
 
 func parseDeleteCmd(a []string) (*DeleteCommand, error) {
-	panic("not implemented")
+	if len(a) == 0 {
+		return nil, fmt.Errorf("delete error: ID cannot be empty")
+	}
+	idStr := a[0]
+	if strings.TrimSpace(idStr) == "" {
+		return nil, fmt.Errorf("delete error: ID cannot be empty")
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return nil, fmt.Errorf("delete error: invalid ID format %v", err)
+	}
+	if id <= 0 {
+		return nil, fmt.Errorf("delete error: invalid ID format - ID cannot be zero or negative")
+	}
+	return &DeleteCommand{Id: id}, nil
 }
