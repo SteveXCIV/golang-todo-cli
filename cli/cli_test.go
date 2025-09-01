@@ -329,7 +329,7 @@ func TestParseSearchListTableDriven(t *testing.T) {
 			}
 			searchCmd, ok := cmd.(*SearchCommand)
 			if !ok {
-				t.Fatalf("expected add command, got: %v", cmd)
+				t.Fatalf("expected search command, got: %v", cmd)
 			}
 			if !reflect.DeepEqual(&tt.searchCmd, searchCmd) {
 				t.Fatalf("unexpected command: wanted=%v, got=%v", tt.searchCmd, searchCmd)
@@ -338,6 +338,66 @@ func TestParseSearchListTableDriven(t *testing.T) {
 	}
 }
 
-func TestParseCompleteTableDriven(t *testing.T) {}
+func TestParseCompleteTableDriven(t *testing.T) {
+	invalid := []struct {
+		name   string
+		args   []string
+		errMsg string
+	}{
+		{
+			name:   "complete empty ID",
+			args:   []string{"complete", ""},
+			errMsg: "ID cannot be empty",
+		},
+		{
+			name:   "complete invalid ID",
+			args:   []string{"complete", "-7"},
+			errMsg: "invalid ID format",
+		},
+	}
+	tests := []struct {
+		name        string
+		args        []string
+		completeCmd CompleteCommand
+	}{
+		{
+			name: "complete with valid ID",
+			args: []string{"complete", "25"},
+			completeCmd: CompleteCommand{
+				Id: 25,
+			},
+		},
+	}
+
+	for _, it := range invalid {
+		t.Run(it.name, func(t *testing.T) {
+			cmd, err := Parse(&it.args)
+
+			if err == nil {
+				t.Fatalf("expected err, got: %v", cmd)
+			}
+			if !strings.Contains(strings.ToLower(err.Error()), strings.ToLower(it.errMsg)) {
+				t.Fatalf("unexpected err text: wanted='%v', got=%v", it.errMsg, err)
+			}
+		})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cmd, err := Parse(&tt.args)
+
+			if err != nil {
+				t.Fatalf("unexpected err: %v", err)
+			}
+			completeCmd, ok := cmd.(*CompleteCommand)
+			if !ok {
+				t.Fatalf("expected complete command, got: %v", cmd)
+			}
+			if !reflect.DeepEqual(&tt.completeCmd, completeCmd) {
+				t.Fatalf("unexpected command: wanted=%v, got=%v", tt.completeCmd, completeCmd)
+			}
+		})
+	}
+}
 
 func TestParseDeleteTableDriven(t *testing.T) {}
