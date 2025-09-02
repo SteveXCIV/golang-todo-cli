@@ -10,7 +10,7 @@ import (
 )
 
 type Manager interface {
-	AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error
+	AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) (*Task, error)
 	ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error)
 	SearchTasks(query string) ([]Task, error)
 	CompleteTask(id int) error
@@ -59,7 +59,7 @@ func newManagerInternal(
 	return m, nil
 }
 
-func (m *manager) AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) error {
+func (m *manager) AddTask(title string, priority Priority, getDueDate func(time.Time) DueDate, category string) (*Task, error) {
 	newTask := Task{
 		Id:       m.nextId,
 		Title:    title,
@@ -70,7 +70,10 @@ func (m *manager) AddTask(title string, priority Priority, getDueDate func(time.
 	}
 	m.tasks = append(m.tasks, newTask)
 	m.nextId++
-	return m.saveToFile()
+	if err := m.saveToFile(); err != nil {
+		return nil, err
+	}
+	return &newTask, nil
 }
 
 func (m *manager) ListTasks(status *Status, priority *Priority, category string, overdueOnly bool) ([]Task, error) {

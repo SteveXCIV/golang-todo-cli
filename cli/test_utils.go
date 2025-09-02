@@ -35,6 +35,7 @@ type searchCall struct {
 type mockManager struct {
 	now             time.Time
 	addCalls        []addCall
+	addNextOk       *tasks.Task
 	addNextErr      error
 	completeCalls   []completeCall
 	completeNextErr error
@@ -48,9 +49,9 @@ type mockManager struct {
 	searchNextErr   error
 }
 
-func (m *mockManager) AddTask(title string, priority tasks.Priority, getDueDate func(time.Time) tasks.DueDate, category string) error {
+func (m *mockManager) AddTask(title string, priority tasks.Priority, getDueDate func(time.Time) tasks.DueDate, category string) (*tasks.Task, error) {
 	if m.addNextErr != nil {
-		return m.addNextErr
+		return nil, m.addNextErr
 	}
 	call := addCall{
 		title:    title,
@@ -59,7 +60,7 @@ func (m *mockManager) AddTask(title string, priority tasks.Priority, getDueDate 
 		category: category,
 	}
 	m.addCalls = append(m.addCalls, call)
-	return nil
+	return m.addNextOk, nil
 }
 
 func (m *mockManager) CompleteTask(id int) error {

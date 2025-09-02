@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestAddTask(t *testing.T) {
 	m, _ := newManagerInternal("", time.Now, []Task{})
 
-	err := m.AddTask(
+	task, err := m.AddTask(
 		"Test Task",
 		Medium,
 		func(now time.Time) DueDate {
@@ -30,7 +31,6 @@ func TestAddTask(t *testing.T) {
 	if len(tasks) != 1 {
 		t.Fatalf("expected 1 task, got %d", len(tasks))
 	}
-	task := tasks[0]
 	expectedTask := Task{
 		Id:       1,
 		Title:    "Test Task",
@@ -38,7 +38,7 @@ func TestAddTask(t *testing.T) {
 		DueDate:  DueDate(time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)),
 		Status:   Pending,
 	}
-	if task != expectedTask {
+	if !reflect.DeepEqual(task, &expectedTask) {
 		t.Fatalf("expected %v, got %v", expectedTask, task)
 	}
 }
