@@ -14,15 +14,23 @@ var testTime = time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)
 func TestAddExecuteTableDriven(t *testing.T) {
 	m := newMockManager(testTime)
 	tests := []struct {
-		name     string
-		addCmd   AddCommand
-		wantCall addCall
-		want     string
+		name       string
+		addCmd     AddCommand
+		mockReturn *tasks.Task
+		wantCall   addCall
+		want       string
 	}{
 		{
 			name: "add simple",
 			addCmd: AddCommand{
 				Title: "Call dentist",
+			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				DueDate:  tasks.DueDate(testTime),
+				Status:   tasks.Pending,
 			},
 			wantCall: addCall{
 				title:    "Call dentist",
@@ -37,6 +45,13 @@ func TestAddExecuteTableDriven(t *testing.T) {
 				Title:    "Call dentist",
 				Priority: tasks.High,
 			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.High,
+				DueDate:  tasks.DueDate(testTime),
+				Status:   tasks.Pending,
+			},
 			wantCall: addCall{
 				title:    "Call dentist",
 				priority: tasks.High,
@@ -49,6 +64,13 @@ func TestAddExecuteTableDriven(t *testing.T) {
 			addCmd: AddCommand{
 				Title: "Call dentist",
 				Due:   &DueTomorrow{},
+			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				DueDate:  tasks.DueDate(testTime.Add(time.Hour * 24)),
+				Status:   tasks.Pending,
 			},
 			wantCall: addCall{
 				title:    "Call dentist",
@@ -63,6 +85,13 @@ func TestAddExecuteTableDriven(t *testing.T) {
 				Title: "Call dentist",
 				Due:   &DueInDays{Days: 7},
 			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				DueDate:  tasks.DueDate(testTime.Add(time.Hour * 24 * 7)),
+				Status:   tasks.Pending,
+			},
 			wantCall: addCall{
 				title:    "Call dentist",
 				priority: tasks.Medium,
@@ -75,6 +104,13 @@ func TestAddExecuteTableDriven(t *testing.T) {
 			addCmd: AddCommand{
 				Title: "Call dentist",
 				Due:   &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
+			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				DueDate:  tasks.DueDate(time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)),
+				Status:   tasks.Pending,
 			},
 			wantCall: addCall{
 				title:    "Call dentist",
@@ -89,6 +125,7 @@ func TestAddExecuteTableDriven(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m.reset()
+			m.addNextOk = tt.mockReturn
 
 			// TODO: revisit this API to see if we can avoid double-pointer
 			got, err := tt.addCmd.Execute(&manager)
