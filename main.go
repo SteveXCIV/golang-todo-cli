@@ -1,30 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"time"
+	"os"
 
+	"github.com/stevexciv/golang-todo-cli/cli"
 	"github.com/stevexciv/golang-todo-cli/tasks"
 )
 
 func main() {
-	var testTask = tasks.Task{
-		Id:       1,
-		Title:    "Schedule dentist appointment",
-		Priority: tasks.High,
-		DueDate:  tasks.DueDate(time.Now().AddDate(0, 0, 7)),
-		Category: "Health",
-		Status:   tasks.Pending,
+	args := os.Args[1:]
+	cmd, err := cli.Parse(&args)
+	if err != nil {
+		fmt.Println("Error parsing command: ", err)
+		os.Exit(1)
 	}
 
-	jsonStatus, _ := json.Marshal(tasks.Completed)
-	fmt.Println("Marshaled Status:", string(jsonStatus))
+	m, err := tasks.NewManager()
+	if err != nil {
+		fmt.Println("Error creating task manager: ", err)
+		os.Exit(1)
+	}
 
-	var parsedStatus tasks.Status
-	_ = json.Unmarshal(jsonStatus, &parsedStatus)
-	fmt.Println("Parsed Status:", parsedStatus)
+	res, err := cmd.Execute(m)
+	if err != nil {
+		fmt.Println("Error executing command: ", err)
+		os.Exit(1)
+	}
 
-	jsonData, _ := json.Marshal(testTask)
-	fmt.Println(string(jsonData))
+	fmt.Println(res)
 }
