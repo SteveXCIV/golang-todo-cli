@@ -26,7 +26,7 @@ type manager struct {
 
 func NewManager() (Manager, error) {
 	return newManagerInternal(
-		"tasks.json",
+		"tasks.db.json",
 		time.Now,
 		[]Task{},
 	)
