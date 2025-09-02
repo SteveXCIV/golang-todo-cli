@@ -155,6 +155,9 @@ func (m *manager) loadFromFile() error {
 	if strings.TrimSpace(m.filename) == "" {
 		return nil
 	}
+	if _, err := os.Stat(m.filename); os.IsNotExist(err) {
+		return nil
+	}
 	file, err := os.ReadFile(m.filename)
 	if err != nil {
 		return err
