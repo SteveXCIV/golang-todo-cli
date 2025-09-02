@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -149,6 +150,43 @@ func TestAddExecuteTableDriven(t *testing.T) {
 			want := strings.ToLower(tt.want)
 			if !strings.Contains(got, want) {
 				t.Fatalf("expected output to contain '%v', got: %v", want, got)
+			}
+		})
+	}
+}
+
+func TestAddExecuteErrorsTableDriven(t *testing.T) {
+	m := newMockManager(testTime)
+	tests := []struct {
+		name    string
+		addCmd  AddCommand
+		mockErr error
+		wantErr string
+	}{
+		{
+			name: "add task error",
+			addCmd: AddCommand{
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				Due:      &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
+			},
+			mockErr: errors.New("failed to add task"),
+			wantErr: "failed to add task",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m.reset()
+			m.addNextErr = tt.mockErr
+
+			_, err := tt.addCmd.Execute(&m)
+
+			if err == nil {
+				t.Fatalf("expected error, got nil")
+			}
+			if !strings.Contains(strings.ToLower(err.Error()), strings.ToLower(tt.wantErr)) {
+				t.Fatalf("expected error message to contain '%v', got: %v", tt.wantErr, err)
 			}
 		})
 	}
