@@ -23,7 +23,7 @@ func TestCompleteExecuteTableDriven(t *testing.T) {
 			wantCall: completeCall{
 				id: 1,
 			},
-			want: "Task 1 completed successfully",
+			want: "Task completed successfully",
 		},
 	}
 
@@ -67,6 +67,7 @@ func TestCompleteExecuteErrorsTableDriven(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m.reset()
+			m.completeNextErr = tt.mockErr
 
 			_, err := tt.completeCmd.Execute(&m)
 
