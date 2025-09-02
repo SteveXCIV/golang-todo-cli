@@ -6,6 +6,8 @@ import (
 	"github.com/stevexciv/golang-todo-cli/tasks"
 )
 
+var testTime = time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)
+
 type addCall struct {
 	title    string
 	priority tasks.Priority

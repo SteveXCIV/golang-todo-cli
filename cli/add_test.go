@@ -10,8 +10,6 @@ import (
 	"github.com/stevexciv/golang-todo-cli/tasks"
 )
 
-var testTime = time.Date(2024, 4, 10, 0, 0, 0, 0, time.UTC)
-
 func TestAddExecuteTableDriven(t *testing.T) {
 	m := newMockManager(testTime)
 	tests := []struct {
