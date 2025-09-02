@@ -21,29 +21,11 @@ func TestAddExecuteTableDriven(t *testing.T) {
 		want       string
 	}{
 		{
-			name: "add simple",
-			addCmd: AddCommand{
-				Title: "Call dentist",
-			},
-			mockReturn: &tasks.Task{
-				Id:       1,
-				Title:    "Call dentist",
-				Priority: tasks.Medium,
-				DueDate:  tasks.DueDate(testTime),
-				Status:   tasks.Pending,
-			},
-			wantCall: addCall{
-				title:    "Call dentist",
-				priority: tasks.Medium,
-				dueDate:  tasks.DueDate(testTime),
-			},
-			want: "Added task 'Call dentist' successfully",
-		},
-		{
-			name: "add with priority",
+			name: "add due today",
 			addCmd: AddCommand{
 				Title:    "Call dentist",
 				Priority: tasks.High,
+				Due:      &DueToday{},
 			},
 			mockReturn: &tasks.Task{
 				Id:       1,
@@ -62,8 +44,9 @@ func TestAddExecuteTableDriven(t *testing.T) {
 		{
 			name: "add due tomorrow",
 			addCmd: AddCommand{
-				Title: "Call dentist",
-				Due:   &DueTomorrow{},
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				Due:      &DueTomorrow{},
 			},
 			mockReturn: &tasks.Task{
 				Id:       1,
@@ -82,8 +65,9 @@ func TestAddExecuteTableDriven(t *testing.T) {
 		{
 			name: "add due relative",
 			addCmd: AddCommand{
-				Title: "Call dentist",
-				Due:   &DueInDays{Days: 7},
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				Due:      &DueInDays{Days: 7},
 			},
 			mockReturn: &tasks.Task{
 				Id:       1,
@@ -102,8 +86,9 @@ func TestAddExecuteTableDriven(t *testing.T) {
 		{
 			name: "add due absolute",
 			addCmd: AddCommand{
-				Title: "Call dentist",
-				Due:   &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				Due:      &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
 			},
 			mockReturn: &tasks.Task{
 				Id:       1,
@@ -116,6 +101,30 @@ func TestAddExecuteTableDriven(t *testing.T) {
 				title:    "Call dentist",
 				priority: tasks.Medium,
 				dueDate:  tasks.DueDate(time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)),
+			},
+			want: "Added task 'Call dentist' successfully",
+		},
+		{
+			name: "add with category",
+			addCmd: AddCommand{
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				Due:      &DueOnDate{At: time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)},
+				Category: "Health",
+			},
+			mockReturn: &tasks.Task{
+				Id:       1,
+				Title:    "Call dentist",
+				Priority: tasks.Medium,
+				DueDate:  tasks.DueDate(time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)),
+				Status:   tasks.Pending,
+				Category: "Health",
+			},
+			wantCall: addCall{
+				title:    "Call dentist",
+				priority: tasks.Medium,
+				dueDate:  tasks.DueDate(time.Date(2024, 4, 31, 0, 0, 0, 0, time.UTC)),
+				category: "Health",
 			},
 			want: "Added task 'Call dentist' successfully",
 		},
