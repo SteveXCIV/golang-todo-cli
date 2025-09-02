@@ -8,6 +8,6 @@ type DeleteCommand struct {
 	Id int
 }
 
-func (d *DeleteCommand) Execute(m *tasks.Manager) (string, error) {
+func (d *DeleteCommand) Execute(m tasks.Manager) (string, error) {
 	panic("not implemented!")
 }

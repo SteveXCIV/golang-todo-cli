@@ -12,7 +12,7 @@ import (
 )
 
 type Command interface {
-	Execute(m *tasks.Manager) (string, error)
+	Execute(m tasks.Manager) (string, error)
 }
 
 func Parse(a *[]string) (Command, error) {

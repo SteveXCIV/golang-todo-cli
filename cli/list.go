@@ -9,6 +9,6 @@ type ListCommand struct {
 	OverdueFilter  bool
 }
 
-func (l *ListCommand) Execute(m *tasks.Manager) (string, error) {
+func (l *ListCommand) Execute(m tasks.Manager) (string, error) {
 	panic("not implemented!")
 }

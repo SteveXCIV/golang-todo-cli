@@ -29,8 +29,15 @@ type AddCommand struct {
 	Category string
 }
 
-func (a *AddCommand) Execute(m *tasks.Manager) (string, error) {
-	panic("not implemented")
+func (a *AddCommand) Execute(m tasks.Manager) (string, error) {
+	added, err := m.AddTask(a.Title, a.Priority, func(t time.Time) tasks.DueDate {
+		return a.Due.IntoDueDate(t)
+	}, a.Category)
+
+	if err != nil {
+		return "", err
+	}
+	return "Added task '" + added.Title + "' successfully", nil
 }
 
 func (d *DueToday) IntoDueDate(t time.Time) tasks.DueDate {

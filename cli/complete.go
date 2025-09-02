@@ -6,6 +6,6 @@ type CompleteCommand struct {
 	Id int
 }
 
-func (c *CompleteCommand) Execute(m *tasks.Manager) (string, error) {
+func (c *CompleteCommand) Execute(m tasks.Manager) (string, error) {
 	panic("not implemented!")
 }

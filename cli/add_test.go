@@ -128,7 +128,7 @@ func TestAddExecuteTableDriven(t *testing.T) {
 			m.addNextOk = tt.mockReturn
 
 			// TODO: revisit this API to see if we can avoid double-pointer
-			got, err := tt.addCmd.Execute(&manager)
+			got, err := tt.addCmd.Execute(manager)
 
 			if err != nil {
 				t.Fatalf("exepcted no error, got %v", err)

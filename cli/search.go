@@ -6,6 +6,6 @@ type SearchCommand struct {
 	Query string
 }
 
-func (s *SearchCommand) Execute(m *tasks.Manager) (string, error) {
+func (s *SearchCommand) Execute(m tasks.Manager) (string, error) {
 	panic("not implemented")
 }
