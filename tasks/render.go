@@ -10,8 +10,8 @@ import (
 func RenderTable(t []Task) string {
 	sb := strings.Builder{}
 	w := tabwriter.NewWriter(&sb, 0, 0, 2, ' ', tabwriter.Debug)
-	_, _ = fmt.Fprintln(w, "ID\tTitle\tPriority\tDue Date\tCategory\tStatus")
-	_, _ = fmt.Fprintln(w, "----\t-----\t--------\t----------\t--------\t-------")
+	_, _ = fmt.Fprintln(w, "ID\tTitle\tPriority\tDue Date\tCategory\tStatus\t")
+	_, _ = fmt.Fprintln(w, "----\t-----\t--------\t----------\t--------\t-------\t")
 	for _, task := range t {
 		var priority string
 		switch task.Priority {
@@ -23,6 +23,12 @@ func RenderTable(t []Task) string {
 			priority = "HIGH"
 		}
 		dueDate := time.Time(task.DueDate).Format("2006-01-02")
+		var category string
+		if strings.TrimSpace(task.Category) == "" {
+			category = " - "
+		} else {
+			category = task.Category
+		}
 		var status string
 		switch task.Status {
 		case Pending:
@@ -30,7 +36,7 @@ func RenderTable(t []Task) string {
 		case Completed:
 			status = "completed"
 		}
-		_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\t%s\n", task.Id, task.Title, priority, dueDate, task.Category, status)
+		_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\t%s\t\n", task.Id, task.Title, priority, dueDate, category, status)
 	}
 	_ = w.Flush()
 	return sb.String()
