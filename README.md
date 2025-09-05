@@ -46,6 +46,9 @@ The CLI supports five main commands: `add`, `list`, `search`, `complete`, and `d
 ```bash
 # Search task titles
 ./golang-todo-cli search "doctor"
+
+# Search is case-insensitive
+./golang-todo-cli search "call"
 ```
 
 ### Completing tasks
